@@ -14,7 +14,6 @@
   --neg: #d63b3b;
   --watch: #d97706;
   --ghost: #C0C0C0;
-  --lod-light-gray: #E5E5E5;
   --lod-gray-light: #F5F5F5;
   --lod-gray-mid: #E5E5E5;
   --lod-gray-dark: #666666;
@@ -98,6 +97,11 @@ body {
   color: var(--lod-gray-dark);
   margin-right: 10px;
   align-self: center;
+}
+
+button.pill {
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .pill {
@@ -233,6 +237,13 @@ body {
   font-size: 12px;
 }
 
+.chart-filter .pill-divider {
+  width: 1px;
+  background: var(--lod-gray-mid);
+  align-self: stretch;
+  margin: 4px 2px;
+}
+
 #hero-chart {
   width: 100%;
   overflow-x: auto;
@@ -301,7 +312,7 @@ body {
   padding: 10px 12px;
 }
 
-.data-table th:first-child { text-align: left; }
+.data-table thead tr:first-child th:first-child { text-align: left; }
 
 .data-table td {
   text-align: right;
@@ -320,8 +331,15 @@ body {
   color: var(--lod-electric-blue);
 }
 
-.data-table tr:hover:not(.day-expand-row) {
+.data-table tr:hover:not(.day-expand-row):not(.totals-row) {
   background: var(--lod-gray-light);
+}
+
+.totals-row td:first-child {
+  cursor: default;
+}
+.totals-row td:first-child:hover {
+  color: inherit;
 }
 .day-expand-row.visible:hover td {
   background: #EBEBEB;
@@ -410,6 +428,12 @@ body {
 
 .day-expand-row.visible {
   display: table-row;
+  animation: fadeInRow 0.15s ease;
+}
+
+@keyframes fadeInRow {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .day-expand-row td {
@@ -430,8 +454,8 @@ body {
   color: inherit;
 }
 
-.day-placeholder {
-  text-align: center !important;
+.day-expand-row td.day-placeholder {
+  text-align: center;
   font-style: italic;
   color: var(--lod-gray-dark);
 }
@@ -486,6 +510,7 @@ body {
   .chart-section { break-inside: avoid; }
   .data-table tr { break-inside: avoid; }
   .footnotes, .report-footer { break-before: avoid; }
+  .totals-row { break-before: avoid; }
   .data-table td:first-child { cursor: default; }
   .data-table td:first-child:hover { color: inherit; }
 }
@@ -508,22 +533,23 @@ body {
   <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
     <div class="pill-group" id="compare-pills">
       <label>Compare</label>
-      <span class="pill" data-mode="wow" tabindex="0" role="button" onclick="setCompare('wow')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setCompare('wow')}">WoW</span>
-      <span class="pill" data-mode="stly" tabindex="0" role="button" onclick="setCompare('stly')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setCompare('stly')}">STLY</span>
-      <span class="pill" data-mode="budget" tabindex="0" role="button" onclick="setCompare('budget')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setCompare('budget')}">Budget</span>
+      <button class="pill" data-mode="wow" aria-pressed="false" onclick="setCompare('wow')">WoW</button>
+      <button class="pill" data-mode="stly" aria-pressed="false" onclick="setCompare('stly')">STLY</button>
+      <button class="pill" data-mode="budget" aria-pressed="false" onclick="setCompare('budget')">Budget</button>
     </div>
     <div class="ooo-toggle" id="ooo-toggle">
-      <span class="pill" data-ooo="excl" tabindex="0" role="button" onclick="setOoo('excl')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setOoo('excl')}">Excl OOO</span>
-      <span class="pill" data-ooo="incl" tabindex="0" role="button" onclick="setOoo('incl')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setOoo('incl')}">Incl OOO</span>
+      <button class="pill" data-ooo="excl" aria-pressed="false" onclick="setOoo('excl')">Excl OOO</button>
+      <button class="pill" data-ooo="incl" aria-pressed="false" onclick="setOoo('incl')">Incl OOO</button>
     </div>
   </div>
   <div class="pill-group chart-filter" id="chart-filter">
     <label>Chart</label>
-    <span class="pill" data-months="3" tabindex="0" role="button" onclick="setChartFilter(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(3)}">3</span>
-    <span class="pill" data-months="6" tabindex="0" role="button" onclick="setChartFilter(6)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(6)}">6</span>
-    <span class="pill" data-months="9" tabindex="0" role="button" onclick="setChartFilter(9)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(9)}">9</span>
-    <span class="pill" data-months="12" tabindex="0" role="button" onclick="setChartFilter(12)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(12)}">12</span>
-    <span class="pill active" id="adr-pill" tabindex="0" role="button" onclick="setAdr()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setAdr()}">ADR</span>
+    <button class="pill" data-months="3" aria-pressed="false" onclick="setChartFilter(3)">3</button>
+    <button class="pill" data-months="6" aria-pressed="false" onclick="setChartFilter(6)">6</button>
+    <button class="pill" data-months="9" aria-pressed="false" onclick="setChartFilter(9)">9</button>
+    <button class="pill" data-months="12" aria-pressed="false" onclick="setChartFilter(12)">12</button>
+    <span class="pill-divider"></span>
+    <button class="pill active" id="adr-pill" aria-pressed="true" onclick="setAdr()">ADR</button>
   </div>
 </div>
 
@@ -535,73 +561,7 @@ body {
   <div class="section-header">
     <h2>Revenue Pacing</h2>
   </div>
-  <div id="hero-chart"><svg width="1060" height="460" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,DM Sans,Arial,sans-serif">
-<rect width="1060" height="320" fill="white"/>
-<line x1="80" y1="40.0" x2="980" y2="40.0" stroke="#E5E5E5" stroke-width="0.5"/>
-<text x="72" y="44.0" text-anchor="end" fill="#666666" font-size="11">$4.7M</text>
-<line x1="80" y1="97.5" x2="980" y2="97.5" stroke="#E5E5E5" stroke-width="0.5"/>
-<text x="72" y="101.5" text-anchor="end" fill="#666666" font-size="11">$3.6M</text>
-<line x1="80" y1="155.0" x2="980" y2="155.0" stroke="#E5E5E5" stroke-width="0.5"/>
-<text x="72" y="159.0" text-anchor="end" fill="#666666" font-size="11">$2.4M</text>
-<line x1="80" y1="212.5" x2="980" y2="212.5" stroke="#E5E5E5" stroke-width="0.5"/>
-<text x="72" y="216.5" text-anchor="end" fill="#666666" font-size="11">$1.2M</text>
-<line x1="80" y1="270.0" x2="980" y2="270.0" stroke="#E5E5E5" stroke-width="0.5"/>
-<text x="72" y="274.0" text-anchor="end" fill="#666666" font-size="11">$0</text>
-<text x="988" y="44.0" text-anchor="start" fill="#666666" font-size="11">$1031</text>
-<text x="988" y="101.5" text-anchor="start" fill="#666666" font-size="11">$885</text>
-<text x="988" y="159.0" text-anchor="start" fill="#666666" font-size="11">$739</text>
-<text x="988" y="216.5" text-anchor="start" fill="#666666" font-size="11">$592</text>
-<text x="988" y="274.0" text-anchor="start" fill="#666666" font-size="11">$446</text>
-<rect x="83.8" y="96.8" width="22.5" height="173.2" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="110.0" y="70.0" width="22.5" height="200.0" fill="#0A84FF" rx="2"/>
-<text x="117.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Mar</text>
-<rect x="158.8" y="145.4" width="22.5" height="124.6" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="185.0" y="141.1" width="22.5" height="128.9" fill="#0A84FF" rx="2"/>
-<text x="192.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Apr</text>
-<rect x="233.8" y="180.2" width="22.5" height="89.8" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="260.0" y="182.9" width="22.5" height="87.1" fill="#0A84FF" rx="2"/>
-<text x="267.5" y="310" text-anchor="middle" fill="#666666" font-size="11">May</text>
-<rect x="308.8" y="204.3" width="22.5" height="65.7" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="335.0" y="197.4" width="22.5" height="72.6" fill="#0A84FF" rx="2"/>
-<text x="342.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Jun</text>
-<rect x="383.8" y="200.1" width="22.5" height="69.9" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="410.0" y="219.4" width="22.5" height="50.6" fill="#0A84FF" rx="2"/>
-<text x="417.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Jul</text>
-<rect x="458.8" y="212.3" width="22.5" height="57.7" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="485.0" y="223.7" width="22.5" height="46.3" fill="#0A84FF" rx="2"/>
-<text x="492.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Aug</text>
-<rect x="533.8" y="239.8" width="22.5" height="30.2" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="560.0" y="239.4" width="22.5" height="30.6" fill="#0A84FF" rx="2"/>
-<text x="567.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Sep</text>
-<rect x="608.8" y="240.2" width="22.5" height="29.8" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="635.0" y="245.4" width="22.5" height="24.6" fill="#0A84FF" rx="2"/>
-<text x="642.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Oct</text>
-<rect x="683.8" y="248.6" width="22.5" height="21.4" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="710.0" y="237.7" width="22.5" height="32.3" fill="#0A84FF" rx="2"/>
-<text x="717.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Nov</text>
-<rect x="758.8" y="233.0" width="22.5" height="37.0" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="785.0" y="253.4" width="22.5" height="16.6" fill="#0A84FF" rx="2"/>
-<text x="792.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Dec</text>
-<rect x="833.8" y="250.2" width="22.5" height="19.8" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="860.0" y="262.2" width="22.5" height="7.8" fill="#0A84FF" rx="2"/>
-<text x="867.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Jan</text>
-<rect x="908.8" y="266.5" width="22.5" height="3.5" fill="none" stroke="#C0C0C0" stroke-width="1.5" rx="2"/>
-<rect x="935.0" y="268.4" width="22.5" height="1.6" fill="#0A84FF" rx="2"/>
-<text x="942.5" y="310" text-anchor="middle" fill="#666666" font-size="11">Feb</text>
-<path d="M 117.5 235.0 L 192.5 224.9 L 267.5 233.3 L 342.5 227.5 L 417.5 221.9 L 492.5 208.2 L 567.5 239.0 L 642.5 206.9 L 717.5 211.2 L 792.5 175.0 L 867.5 232.1 L 942.5 92.9" fill="none" stroke="#1A1A1A" stroke-width="2"/>
-<circle cx="117.5" cy="235.0" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="192.5" cy="224.9" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="267.5" cy="233.3" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="342.5" cy="227.5" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="417.5" cy="221.9" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="492.5" cy="208.2" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="567.5" cy="239.0" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="642.5" cy="206.9" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="717.5" cy="211.2" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="792.5" cy="175.0" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="867.5" cy="232.1" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-<circle cx="942.5" cy="92.9" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
-</svg></div>
+  <div id="hero-chart"></div>
   <div class="chart-legend">
     <span><span class="legend-swatch" style="background:var(--pos);border-radius:2px;"></span>Ahead</span>
     <span><span class="legend-swatch" style="background:var(--neg);border-radius:2px;"></span>Behind</span>
@@ -28967,7 +28927,7 @@ function renderMonthlyTable(monthly) {
       revVsExtra = delta.revenue > 0 ? ' rev-vs-pos' : delta.revenue < 0 ? ' rev-vs-neg' : '';
     }
 
-    html += '<tr class="month-row" data-month-key="' + monthKey + '" onclick="toggleDay(\'' + monthKey + '\')">';
+    html += '<tr class="month-row" data-month-key="' + monthKey + '" onclick="toggleDay(\'' + monthKey + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDay(\'' + monthKey + '\')}" tabindex="0" role="row" aria-expanded="false">';
     html += '<td><span class="expand-icon">\u25B8</span>' + m.label + '</td>';
     html += '<td>' + fmtNum(cur.rooms) + '</td>';
 
@@ -29087,6 +29047,72 @@ function renderMonthlyTable(monthly) {
     }
   }
 
+  /* ── Totals Row ── */
+  var totRooms = 0, totRevenue = 0, totCompRevenue = 0, totCompRooms = 0;
+  var totPickupRooms = 0, totPickupRevenue = 0;
+  var totDenomExcl = 0, totDenomIncl = 0;
+  var totCompDenomExcl = 0, totCompDenomIncl = 0;
+  for (var t = 0; t < monthly.length; t++) {
+    var tm = monthly[t];
+    totRooms += tm.current.rooms;
+    totRevenue += tm.current.revenue;
+    totDenomExcl += tm.current.available_room_nights - tm.current.ooo_room_nights;
+    totDenomIncl += tm.current.available_room_nights;
+    if (tm.comparison && hasComparison) {
+      totCompRooms += tm.comparison.rooms;
+      totCompRevenue += tm.comparison.revenue;
+      totCompDenomExcl += tm.comparison.available_room_nights - tm.comparison.ooo_room_nights;
+      totCompDenomIncl += tm.comparison.available_room_nights;
+    }
+    if (tm.pickup) {
+      totPickupRooms += tm.pickup.rooms;
+      totPickupRevenue += tm.pickup.revenue;
+    }
+  }
+  var totAdr = totRooms > 0 ? totRevenue / totRooms : null;
+  var totOccDenom = activeOoo === 'excl' ? totDenomExcl : totDenomIncl;
+  var totOcc = totOccDenom > 0 ? totRooms / totOccDenom * 100 : null;
+  var totRevPar = totOccDenom > 0 ? totRevenue / totOccDenom : null;
+  var totRevDelta = hasComparison ? totRevenue - totCompRevenue : null;
+  var totAdrComp = (hasComparison && totCompRooms > 0) ? totCompRevenue / totCompRooms : null;
+  var totAdrDelta = (totAdr !== null && totAdrComp !== null) ? totAdr - totAdrComp : null;
+  var totCompOccDenom = activeOoo === 'excl' ? totCompDenomExcl : totCompDenomIncl;
+  var totCompOcc = (hasComparison && totCompOccDenom > 0) ? totCompRooms / totCompOccDenom * 100 : null;
+  var totOccDelta = (totOcc !== null && totCompOcc !== null) ? totOcc - totCompOcc : null;
+  var totPickupAdr = totPickupRooms !== 0 ? totPickupRevenue / totPickupRooms : null;
+
+  var totRevVs = '';
+  if (totRevDelta !== null) {
+    totRevVs = totRevDelta > 0 ? ' rev-vs-pos' : totRevDelta < 0 ? ' rev-vs-neg' : '';
+  }
+
+  html += '<tr class="totals-row" style="font-weight:700;border-top:2px solid var(--lod-black);">';
+  html += '<td style="cursor:default;">Total</td>';
+  html += '<td>' + fmtNum(totRooms) + '</td>';
+  html += '<td class="col-sep">' + fmtMoney(totRevenue) + '</td>';
+  if (hasComparison) {
+    html += '<td class="' + deltaClass(totRevDelta) + totRevVs + '">' + fmtDeltaMoney(totRevDelta) + '</td>';
+  } else {
+    html += '<td>\u2014</td>';
+  }
+  html += '<td class="col-sep">' + fmtMoney(totAdr) + '</td>';
+  if (hasComparison) {
+    html += '<td class="' + deltaClass(totAdrDelta) + '">' + fmtDeltaMoney(totAdrDelta) + '</td>';
+  } else {
+    html += '<td>\u2014</td>';
+  }
+  html += '<td class="col-sep">' + fmtPct(totOcc) + '</td>';
+  if (hasComparison) {
+    html += '<td class="' + deltaClass(totOccDelta) + '">' + fmtDeltaPP(totOccDelta) + '</td>';
+  } else {
+    html += '<td>\u2014</td>';
+  }
+  html += '<td class="col-sep">' + fmtMoney(totRevPar) + '</td>';
+  html += '<td class="col-sep">' + fmtNum(totPickupRooms) + '</td>';
+  html += '<td>' + fmtMoney(totPickupRevenue) + '</td>';
+  html += '<td>' + (totPickupAdr !== null ? fmtMoney(totPickupAdr) : '\u2014') + '</td>';
+  html += '</tr>';
+
   tbody.innerHTML = html;
 }
 
@@ -29098,12 +29124,18 @@ function updateComparisonPills() {
     var mode = pill.getAttribute('data-mode');
     pill.classList.remove('active', 'disabled');
     pill.removeAttribute('title');
+    pill.removeAttribute('aria-disabled');
 
     if (!DATA.modes[mode]) {
       pill.classList.add('disabled');
       pill.setAttribute('title', mode.toUpperCase() + ' data not available');
+      pill.setAttribute('aria-disabled', 'true');
+      pill.setAttribute('aria-pressed', 'false');
     } else if (mode === activeMode) {
       pill.classList.add('active');
+      pill.setAttribute('aria-pressed', 'true');
+    } else {
+      pill.setAttribute('aria-pressed', 'false');
     }
   }
 }
@@ -29113,10 +29145,10 @@ function updateOooToggle() {
   var pills = document.querySelectorAll('#ooo-toggle .pill');
   for (var i = 0; i < pills.length; i++) {
     var pill = pills[i];
+    var isActive = pill.getAttribute('data-ooo') === activeOoo;
     pill.classList.remove('active');
-    if (pill.getAttribute('data-ooo') === activeOoo) {
-      pill.classList.add('active');
-    }
+    if (isActive) pill.classList.add('active');
+    pill.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
 
   /* Update column headers */
@@ -29132,13 +29164,13 @@ function updateOooToggle() {
 
 /* ── Chart Filter ───────────────────────────────────────── */
 function updateChartFilter() {
-  var pills = document.querySelectorAll('#chart-filter .pill');
+  var pills = document.querySelectorAll('#chart-filter .pill[data-months]');
   for (var i = 0; i < pills.length; i++) {
     var pill = pills[i];
+    var isActive = parseInt(pill.getAttribute('data-months')) === activeChartFilter;
     pill.classList.remove('active');
-    if (parseInt(pill.getAttribute('data-months')) === activeChartFilter) {
-      pill.classList.add('active');
-    }
+    if (isActive) pill.classList.add('active');
+    pill.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
 }
 
@@ -29334,7 +29366,8 @@ function renderHeroChart(months) {
     return '$' + Math.round(val);
   }
 
-  var svg = '<svg width="' + CHART_WIDTH + '" height="' + CHART_HEIGHT + '" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,DM Sans,Arial,sans-serif">';
+  var svg = '<svg width="' + CHART_WIDTH + '" height="' + CHART_HEIGHT + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Revenue pacing chart showing monthly on-the-books revenue versus comparison" style="font-family:Inter,DM Sans,Arial,sans-serif">';
+  svg += '<title>Revenue pacing chart</title>';
   svg += '<rect width="' + CHART_WIDTH + '" height="' + CHART_HEIGHT + '" fill="white"/>';
 
   /* Horizontal revenue grid lines */
@@ -29364,6 +29397,22 @@ function renderHeroChart(months) {
 
   var baseY = revY(0);
 
+  /* Pre-compute which month labels to show (right-to-left sweep keeps later month on collision) */
+  var labelCandidates = [];
+  for (var lc = 0; lc < n; lc++) {
+    if (sliced[lc].isFirstOfMonth) {
+      labelCandidates.push({ idx: lc, x: PAD_L + lc * groupW + groupW / 2, name: sliced[lc].monthName });
+    }
+  }
+  var showLabel = {};
+  var nextKeptX = 99999;
+  for (var lr = labelCandidates.length - 1; lr >= 0; lr--) {
+    if (nextKeptX - labelCandidates[lr].x > 40) {
+      showLabel[labelCandidates[lr].idx] = labelCandidates[lr];
+      nextKeptX = labelCandidates[lr].x;
+    }
+  }
+
   /* Bars + invisible hitboxes for tooltips */
   for (var b = 0; b < n; b++) {
     var gx = PAD_L + b * groupW;
@@ -29386,9 +29435,9 @@ function renderHeroChart(months) {
       svg += '<rect x="' + (gx + gap + barW + gap).toFixed(1) + '" y="' + cbTop.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + cbH.toFixed(1) + '" fill="' + barColor + '" rx="2"/>';
     }
 
-    /* X-axis label — month name only at first of month */
-    if (sliced[b].isFirstOfMonth) {
-      svg += '<text x="' + (gx + groupW / 2).toFixed(1) + '" y="' + (CHART_HEIGHT - 10) + '" text-anchor="middle" fill="' + COL_LABEL + '" font-size="11">' + sliced[b].monthName + '</text>';
+    /* X-axis label — only if pre-computed as visible */
+    if (showLabel[b]) {
+      svg += '<text x="' + showLabel[b].x.toFixed(1) + '" y="' + (CHART_HEIGHT - 10) + '" text-anchor="middle" fill="' + COL_LABEL + '" font-size="11">' + showLabel[b].name + '</text>';
     }
 
     /* Transparent hitbox for hover tooltip */
@@ -29433,7 +29482,11 @@ function toggleDay(monthKey) {
   for (var i = 0; i < rows.length; i++) {
     rows[i].classList.toggle('visible');
   }
-  if (monthRow) monthRow.classList.toggle('month-expanded');
+  if (monthRow) {
+    monthRow.classList.toggle('month-expanded');
+    var isExpanded = monthRow.classList.contains('month-expanded');
+    monthRow.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  }
 }
 
 /* ── Chart Tooltip ──────────────────────────────────────── */
@@ -29463,8 +29516,16 @@ function showChartTooltip(event, idx) {
   var el = document.getElementById('chart-tooltip');
   el.innerHTML = lines;
   el.style.display = 'block';
-  el.style.left = (event.clientX + 14) + 'px';
-  el.style.top = (event.clientY - 10) + 'px';
+  /* Clamp tooltip within viewport */
+  var tipW = el.offsetWidth || 180;
+  var tipH = el.offsetHeight || 120;
+  var left = event.clientX + 14;
+  var top = event.clientY - 10;
+  if (left + tipW > window.innerWidth - 8) left = event.clientX - tipW - 14;
+  if (top + tipH > window.innerHeight - 8) top = window.innerHeight - tipH - 8;
+  if (top < 8) top = 8;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
 }
 
 function hideChartTooltip() {
@@ -29482,6 +29543,7 @@ function updateAdrPill() {
   var pill = document.getElementById('adr-pill');
   if (!pill) return;
   if (activeAdr) { pill.classList.add('active'); } else { pill.classList.remove('active'); }
+  pill.setAttribute('aria-pressed', activeAdr ? 'true' : 'false');
 }
 
 /* ── Comparison Column Headers ──────────────────────────── */
