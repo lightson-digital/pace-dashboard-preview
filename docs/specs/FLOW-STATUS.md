@@ -58,3 +58,39 @@
 - **Actuals:** Only OTB snapshots. Latest snapshot for past months approximates actual.
 - **Pickup ADR:** Computable from existing `rooms_sold` + `room_revenue` fields.
 - **Rolling 12-month:** KAH data back to 2024, MAL to 2023. Sufficient for rolling view.
+
+---
+
+## Production Plumbing Flow (Active)
+
+**Feature:** Deploy pace dashboard as live web app at revenue.lightson.co
+**Started:** 2026-04-07
+**Class:** Complex
+**Working directories:**
+- Dashboard preview: `lights-on/revenue-reporting-automation/pace-dashboard-preview/`
+- Pipeline: `lights-on/revenue-reporting-automation/pace-pipeline/`
+
+### Production Plumbing Phase Log
+
+| Phase | Status | Date | Notes |
+|-------|--------|------|-------|
+| -1 Classify | Done | 2026-04-07 | Complex. Multi-system: hosting, auth, API, caching, cron. |
+| 0 Research | Done | 2026-04-07 | Research doc written. Recommend Option D: Flask on Railway. |
+| 1 Research Review | Done | 2026-04-07 | Codex adversarial review: 1 Critical (passcode in repo), 1 High (warm-cache auth). Both resolved. |
+| 2 Design | Done | 2026-04-07 | DESIGN.md written. Google OAuth, RPC snapshot query, cache invalidation via warm-cache. |
+| 3 Design Review | Done | 2026-04-07 | Codex adversarial review: 2 High + 1 Medium. All 3 resolved (auth upgraded, query fixed, cache invalidation added). |
+| 4 Plan | Done | 2026-04-07 | 12-task TDD plan. 24 new tests + 2 regression. Covers: generate_html refactor, cache module, template split, Flask app, OAuth, deployment config, warm-cache cron. |
+| 5 Plan Review | Done | 2026-04-07 | Codex adversarial review: 1 Critical + 2 High. All 3 resolved (secret fallback removed, warm-cache variant fixed, single-worker deployment). |
+| 6 Build | Done | 2026-04-07 | All 12 tasks complete. 189 unit tests passing (26 new). |
+| 7 Simplify | Skipped | — | No simplification needed. |
+| 8 Documentation | Done | 2026-04-07 | README, CLAUDE.md, CHANGELOG updated. |
+| 9 Finish | Done | 2026-04-07 | Committed and pushed. |
+
+### Key Artifacts
+
+- Research: `docs/specs/RESEARCH-PRODUCTION-PLUMBING.md`
+- Research review: `docs/specs/codex-review-research-20260407.md`
+- Design: `docs/specs/DESIGN-PRODUCTION-PLUMBING.md`
+- Design review: `docs/specs/codex-review-design-20260407.md`
+- Implementation plan: `docs/specs/2026-04-07-production-plumbing-plan.md`
+- Plan review: `docs/specs/codex-review-plan-20260407.md`
