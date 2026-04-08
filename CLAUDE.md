@@ -33,8 +33,28 @@ Brand and design guidelines are in `.impeccable.md`. Key points:
 3. Once approved, propagate to `pace-pipeline/src/dashboard/template.html` (Jinja2 version)
 4. Run integration tests in pace-pipeline to verify data rendering
 
+## Chart Behavior
+
+- **≤3 months:** daily data points (one bar per day)
+- **≥6 months:** weekly aggregation (ISO week buckets)
+- **Bar color:** green (`--pos`) when ahead of comparison, red (`--neg`) when behind, blue (`--lod-electric-blue`) when no comparison
+- **ADR line:** dashed blue (`#0A84FF`), toggleable via pill (default on)
+- **Right axis:** ADR scale in blue when ADR active
+- **Tooltip:** Revenue OTB + comparison + delta + ADR + Occ% (ADR/Occ have no comparison shown)
+- **Daily occ delta:** approximate — uses `comparison.rooms / total_rooms * 100` as proxy (daily comparison data lacks occ fields)
+
+## Table Layout
+
+Interleaved columns: Month | Rooms | Rev OTB | Rev Δ | ADR OTB | ADR Δ | Occ% OTB | Occ% Δ | RevPAR | Pickup Rooms | Pickup Revenue | Pickup ADR
+
+- `.col-sep` class on group boundary cells (not nth-child selectors)
+- `.rev-vs-pos` / `.rev-vs-neg` on Revenue Δ cells for background color
+- `.day-expand-row td.delta-positive/negative` for daily delta text color (CSS specificity override)
+- OOO indicator: group header for Occ%, second line for RevPAR, omitted from subheaders
+
 ## Next Steps
 
-- Functional critique session (interactions, data accuracy, edge cases)
+- Final aesthetic pass (font options discussion deferred)
 - Re-run `/critique` to score improvements (target: 32+/40)
-- Propagate approved changes to production template
+- Propagate approved changes to production template (`pace-pipeline/src/dashboard/template.html`)
+- Hook up to email ingestion pipeline for automated generation

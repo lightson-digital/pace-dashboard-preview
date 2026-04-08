@@ -6,6 +6,41 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Changed — Functional Improvements (2026-04-07)
+
+**Hero Chart**
+- Chart height scaled to 460px (from 320px) for better visual presence
+- Daily data points for ≤3-month filter; weekly aggregation for ≥6-month filter
+- Bar color reflects ahead/behind status vs comparison period (green/red/blue fallback)
+- ADR overlay changed to dashed blue (#0A84FF) line with toggle pill (default on)
+- ADR right axis labels styled in blue to match line
+- X-axis labels show month name only at first bar of each month
+- Light dashed vertical gridlines at month boundaries
+- Hover tooltip: Revenue OTB, comparison, delta amount/%, snapshot ADR and Occ%
+
+**Monthly Breakdown Table**
+- Restructured to interleaved layout: KPI + comparison columns adjacent (Revenue OTB | Rev Δ | ADR OTB | ADR Δ | Occ% OTB | Occ% Δ | RevPAR | Pickup)
+- Revenue Δ cell background colored green (#b8e8c8) / red (#f5b0b0) for ahead/behind
+- Comparison column headers update dynamically with toggle ("vs STLY", "vs WoW", "vs Budget")
+- Occ% subheader: OOO indicator moved to group header only
+- RevPAR header: OOO indicator on second line
+- Pickup "Rev" column header spelled out to "Revenue"
+- All headers set to nowrap to prevent wrapping at default screen width
+- Column group separators use `.col-sep` class (replacing fragile nth-child selectors)
+
+**Daily Breakdown**
+- Day-of-week prefix on daily rows ("Sat Mar 1")
+- Revenue Δ cell background color fix (CSS specificity override for .day-expand-row td)
+- Delta text colors (ADR vs, Occ vs) now show green/red matching monthly rows
+- Approximate Occ% delta computed from comparison.rooms / total_rooms
+- Hover highlight on daily rows (slightly darker bg on hover)
+
+**Color Consistency**
+- All green/red aligned to --pos (#167D48) / --neg (#d63b3b) family
+- Cell backgrounds: #b8e8c8 (green) / #f5b0b0 (red)
+- Tooltip delta text: #b8e8c8 / #f5b0b0 (matches cell backgrounds, readable on dark bg)
+- Hover states for daily rev-vs cells: #a8ddb8 / #eba0a0
+
 ### Changed — Aesthetics Refresh (2026-04-07)
 
 **Typography**

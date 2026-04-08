@@ -4,7 +4,7 @@ Preview repository for Lights On Digital's weekly hotel pace reports. Contains g
 
 ## Current Version
 
-**v5** — Rolling 12-month pace report with comparison toggles (WoW/STLY/Budget), OOO occupancy toggle, hero chart with time filter, expandable daily breakdown, and print-to-PDF support.
+**v5** — Rolling 12-month pace report with comparison toggles (WoW/STLY/Budget), OOO occupancy toggle, hero chart with time filter and ADR overlay, interleaved monthly breakdown table with expandable daily detail, and print-to-PDF support.
 
 ## Files
 

@@ -267,7 +267,7 @@ body {
 
 .legend-swatch.current { background: var(--lod-electric-blue); }
 .legend-swatch.comparison { background: none; border: 1.5px solid var(--ghost); }
-.legend-swatch.adr { background: var(--lod-near-black); width: 14px; height: 2px; border-radius: 0; }
+.legend-swatch.adr { background: none; width: 14px; height: 0; border-radius: 0; border-bottom: 2px dashed var(--lod-electric-blue); }
 
 /* ── 5. Monthly Breakdown Table ─────────────────────────── */
 .table-section {
@@ -297,6 +297,7 @@ body {
   letter-spacing: 0.1em;
   color: var(--lod-gray-dark);
   border-bottom: 2px solid var(--lod-black);
+  white-space: nowrap;
   padding: 10px 12px;
 }
 
@@ -322,6 +323,15 @@ body {
 .data-table tr:hover:not(.day-expand-row) {
   background: var(--lod-gray-light);
 }
+.day-expand-row.visible:hover td {
+  background: #EBEBEB;
+}
+.day-expand-row.visible:hover td.rev-vs-pos {
+  background: #a8ddb8;
+}
+.day-expand-row.visible:hover td.rev-vs-neg {
+  background: #eba0a0;
+}
 
 .data-table .col-group-current {}
 .data-table .col-group-delta { color: var(--lod-gray-dark); }
@@ -335,20 +345,50 @@ body {
   color: var(--lod-gray-dark);
 }
 
-/* Column group separators — data rows */
-.data-table tbody td:nth-child(7) {
+/* Column group separators — class-based (used on both th and td) */
+.col-sep {
   border-left: 2px solid var(--lod-gray-mid);
 }
-.data-table tbody td:nth-child(11) {
-  border-left: 2px solid var(--lod-gray-mid);
+
+/* Revenue-vs cell color highlight */
+.rev-vs-pos {
+  background: #b8e8c8;
 }
-/* Column group separators — header rows */
-.data-table .th-group + .th-group {
-  border-left: 2px solid var(--lod-gray-mid);
+.rev-vs-neg {
+  background: #f5b0b0;
 }
-.data-table thead tr:last-child th:nth-child(6),
-.data-table thead tr:last-child th:nth-child(10) {
-  border-left: 2px solid var(--lod-gray-mid);
+/* Daily rows: higher specificity needed to override .day-expand-row td */
+.day-expand-row td.rev-vs-pos {
+  background: #b8e8c8;
+}
+.day-expand-row td.rev-vs-neg {
+  background: #f5b0b0;
+}
+.day-expand-row td.delta-positive {
+  color: var(--pos);
+}
+.day-expand-row td.delta-negative {
+  color: var(--neg);
+}
+
+/* Chart tooltip */
+.chart-tooltip-box {
+  position: fixed;
+  z-index: 100;
+  background: rgba(26, 26, 26, 0.95);
+  color: var(--lod-white);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  pointer-events: none;
+  line-height: 1.7;
+  min-width: 160px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.chart-tooltip-box .tt-label {
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-size: 13px;
 }
 
 /* ── Expand Icon ───────────────────────────────────────── */
@@ -483,6 +523,7 @@ body {
     <span class="pill" data-months="6" tabindex="0" role="button" onclick="setChartFilter(6)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(6)}">6</span>
     <span class="pill" data-months="9" tabindex="0" role="button" onclick="setChartFilter(9)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(9)}">9</span>
     <span class="pill" data-months="12" tabindex="0" role="button" onclick="setChartFilter(12)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setChartFilter(12)}">12</span>
+    <span class="pill active" id="adr-pill" tabindex="0" role="button" onclick="setAdr()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setAdr()}">ADR</span>
   </div>
 </div>
 
@@ -494,7 +535,7 @@ body {
   <div class="section-header">
     <h2>Revenue Pacing</h2>
   </div>
-  <div id="hero-chart"><svg width="1060" height="320" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,DM Sans,Arial,sans-serif">
+  <div id="hero-chart"><svg width="1060" height="460" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,DM Sans,Arial,sans-serif">
 <rect width="1060" height="320" fill="white"/>
 <line x1="80" y1="40.0" x2="980" y2="40.0" stroke="#E5E5E5" stroke-width="0.5"/>
 <text x="72" y="44.0" text-anchor="end" fill="#666666" font-size="11">$4.7M</text>
@@ -562,11 +603,13 @@ body {
 <circle cx="942.5" cy="92.9" r="3.5" fill="#1A1A1A" stroke="white" stroke-width="1.5"/>
 </svg></div>
   <div class="chart-legend">
-    <span><span class="legend-swatch current"></span>Current</span>
+    <span><span class="legend-swatch" style="background:var(--pos);border-radius:2px;"></span>Ahead</span>
+    <span><span class="legend-swatch" style="background:var(--neg);border-radius:2px;"></span>Behind</span>
     <span><span class="legend-swatch comparison"></span>Comparison</span>
-    <span><span class="legend-swatch adr"></span>ADR</span>
+    <span id="legend-adr"><span class="legend-swatch adr"></span>ADR</span>
   </div>
 </div>
+<div id="chart-tooltip" class="chart-tooltip-box" style="display:none;"></div>
 
 <!-- ── 5. Monthly Breakdown Table ───────────────────────── -->
 <div class="table-section">
@@ -575,21 +618,21 @@ body {
     <thead>
       <tr>
         <th rowspan="2">Month</th>
-        <th colspan="5" class="th-group">Current Pace</th>
-        <th colspan="4" class="th-group" id="th-delta-group">Delta vs Comparison</th>
-        <th colspan="3" class="th-group" id="th-pickup-group">Pickup</th>
+        <th rowspan="2">Rooms</th>
+        <th colspan="2" class="th-group col-sep">Revenue</th>
+        <th colspan="2" class="th-group col-sep">ADR</th>
+        <th colspan="2" class="th-group col-sep" id="th-occ-group">Occ%</th>
+        <th rowspan="2" class="col-sep" id="th-revpar">RevPAR</th>
+        <th colspan="3" class="th-group col-sep">Pickup</th>
       </tr>
       <tr>
-        <th>Rooms</th>
-        <th>Revenue</th>
-        <th>ADR</th>
-        <th id="th-occ">Occ%</th>
-        <th id="th-revpar">RevPAR</th>
-        <th>Rooms</th>
-        <th>Revenue</th>
-        <th>ADR</th>
-        <th id="th-delta-occ">Occ (pp)</th>
-        <th>Rooms</th>
+        <th class="col-sep">OTB</th>
+        <th id="th-rev-comp">vs STLY</th>
+        <th class="col-sep">OTB</th>
+        <th id="th-adr-comp">vs STLY</th>
+        <th class="col-sep" id="th-occ">OTB</th>
+        <th id="th-occ-comp">&Delta; (pp)</th>
+        <th class="col-sep">Rooms</th>
         <th>Revenue</th>
         <th>ADR</th>
       </tr>
@@ -28709,16 +28752,18 @@ var DATA = {
 var activeMode = DATA.default_mode;
 var activeOoo = DATA.hotel.occ_excludes_ooo ? 'excl' : 'incl';
 var activeChartFilter = 12;
+var activeAdr = true;
+var chartTooltipData = [];
 
 /* ── Chart constants (mirror charts.py) ─────────────────── */
 var CHART_WIDTH = 1060;
-var CHART_HEIGHT = 320;
+var CHART_HEIGHT = 460;
 var PAD_L = 80, PAD_R = 80, PAD_T = 40, PAD_B = 50;
 var PLOT_W = CHART_WIDTH - PAD_L - PAD_R;
 var PLOT_H = CHART_HEIGHT - PAD_T - PAD_B;
 var COL_CURRENT = '#0A84FF';
 var COL_GHOST = '#C0C0C0';
-var COL_ADR = '#1A1A1A';
+var COL_ADR = '#0A84FF';
 var COL_GRID = '#E5E5E5';
 var COL_LABEL = '#666666';
 
@@ -28907,6 +28952,7 @@ function renderMonthlyTable(monthly) {
   var occCurrentKey = activeOoo === 'excl' ? 'occ_excl_ooo' : 'occ_incl_ooo';
   var rpCurrentKey = activeOoo === 'excl' ? 'revpar_excl_ooo' : 'revpar_incl_ooo';
   var occDeltaKey = activeOoo === 'excl' ? 'occ_excl_ooo_pp' : 'occ_incl_ooo_pp';
+  var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   for (var i = 0; i < monthly.length; i++) {
     var m = monthly[i];
@@ -28915,33 +28961,50 @@ function renderMonthlyTable(monthly) {
     var pickup = m.pickup;
     var monthKey = m.month;
 
+    /* Revenue-vs cell color */
+    var revVsExtra = '';
+    if (delta && hasComparison) {
+      revVsExtra = delta.revenue > 0 ? ' rev-vs-pos' : delta.revenue < 0 ? ' rev-vs-neg' : '';
+    }
+
     html += '<tr class="month-row" data-month-key="' + monthKey + '" onclick="toggleDay(\'' + monthKey + '\')">';
     html += '<td><span class="expand-icon">\u25B8</span>' + m.label + '</td>';
-
-    /* Current pace */
     html += '<td>' + fmtNum(cur.rooms) + '</td>';
-    html += '<td>' + fmtMoney(cur.revenue) + '</td>';
-    html += '<td>' + fmtMoney(cur.adr) + '</td>';
-    html += '<td>' + fmtPct(cur[occCurrentKey]) + '</td>';
-    html += '<td>' + fmtMoney(cur[rpCurrentKey]) + '</td>';
 
-    /* Delta */
+    /* Revenue OTB | Revenue vs */
+    html += '<td class="col-sep">' + fmtMoney(cur.revenue) + '</td>';
     if (delta && hasComparison) {
-      html += '<td class="' + deltaClass(delta.rooms) + '">' + fmtDeltaNum(delta.rooms) + '</td>';
-      html += '<td class="' + deltaClass(delta.revenue) + '">' + fmtDeltaMoney(delta.revenue) + '</td>';
+      html += '<td class="' + deltaClass(delta.revenue) + revVsExtra + '">' + fmtDeltaMoney(delta.revenue) + '</td>';
+    } else {
+      html += '<td>\u2014</td>';
+    }
+
+    /* ADR OTB | ADR vs */
+    html += '<td class="col-sep">' + fmtMoney(cur.adr) + '</td>';
+    if (delta && hasComparison) {
       html += '<td class="' + deltaClass(delta.adr) + '">' + fmtDeltaMoney(delta.adr) + '</td>';
+    } else {
+      html += '<td>\u2014</td>';
+    }
+
+    /* Occ% OTB | Occ vs */
+    html += '<td class="col-sep">' + fmtPct(cur[occCurrentKey]) + '</td>';
+    if (delta && hasComparison) {
       html += '<td class="' + deltaClass(delta[occDeltaKey]) + '">' + fmtDeltaPP(delta[occDeltaKey]) + '</td>';
     } else {
-      html += '<td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td>';
+      html += '<td>\u2014</td>';
     }
+
+    /* RevPAR */
+    html += '<td class="col-sep">' + fmtMoney(cur[rpCurrentKey]) + '</td>';
 
     /* Pickup */
     if (pickup) {
-      html += '<td>' + fmtNum(pickup.rooms) + '</td>';
+      html += '<td class="col-sep">' + fmtNum(pickup.rooms) + '</td>';
       html += '<td>' + fmtMoney(pickup.revenue) + '</td>';
       html += '<td>' + fmtPickupAdr(pickup) + '</td>';
     } else {
-      html += '<td>\u2014</td><td>\u2014</td><td>\u2014</td>';
+      html += '<td class="col-sep">\u2014</td><td>\u2014</td><td>\u2014</td>';
     }
 
     html += '</tr>';
@@ -28956,45 +29019,70 @@ function renderMonthlyTable(monthly) {
         var dayDelta = day.delta;
         var dayPickup = day.pickup;
 
-        /* Format date as "Mon DD" */
+        /* Format date as "Dow Mon D" e.g. "Sat Mar 1" */
         var dateParts = day.date.split('-');
         var dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-        var dayLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+        var dayLabel = dayNames[dateObj.getDay()] + ' ' + dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        var dayRevVsExtra = '';
+        if (dayDelta && hasComparison) {
+          dayRevVsExtra = dayDelta.revenue > 0 ? ' rev-vs-pos' : dayDelta.revenue < 0 ? ' rev-vs-neg' : '';
+        }
+
+        /* Approximate daily occ delta: comparison.rooms / total_rooms as proxy for comparison occ% */
+        var dayOccDelta = null;
+        var dayComp = day.comparison;
+        var totalRooms = DATA.hotel.total_rooms;
+        if (dayComp && dayComp.rooms != null && totalRooms > 0 && dayCur[occCurrentKey] != null && hasComparison) {
+          var compOccApprox = dayComp.rooms / totalRooms * 100;
+          dayOccDelta = dayCur[occCurrentKey] - compOccApprox;
+        }
 
         html += '<tr class="day-expand-row" data-month="' + monthKey + '">';
         html += '<td>' + dayLabel + '</td>';
-
-        /* Current pace */
         html += '<td>' + fmtNum(dayCur.rooms) + '</td>';
-        html += '<td>' + fmtMoney(dayCur.revenue) + '</td>';
-        html += '<td>' + fmtMoney(dayCur.adr) + '</td>';
-        html += '<td>' + fmtPct(dayCur[occCurrentKey]) + '</td>';
-        html += '<td>' + fmtMoney(dayCur[rpCurrentKey]) + '</td>';
 
-        /* Delta */
+        /* Revenue OTB | Revenue vs */
+        html += '<td class="col-sep">' + fmtMoney(dayCur.revenue) + '</td>';
         if (dayDelta && hasComparison) {
-          html += '<td class="' + deltaClass(dayDelta.rooms) + '">' + fmtDeltaNum(dayDelta.rooms) + '</td>';
-          html += '<td class="' + deltaClass(dayDelta.revenue) + '">' + fmtDeltaMoney(dayDelta.revenue) + '</td>';
-          html += '<td class="' + deltaClass(dayDelta.adr) + '">' + fmtDeltaMoney(dayDelta.adr) + '</td>';
-          html += '<td class="' + deltaClass(dayDelta[occDeltaKey]) + '">' + fmtDeltaPP(dayDelta[occDeltaKey]) + '</td>';
+          html += '<td class="' + deltaClass(dayDelta.revenue) + dayRevVsExtra + '">' + fmtDeltaMoney(dayDelta.revenue) + '</td>';
         } else {
-          html += '<td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td>';
+          html += '<td>\u2014</td>';
         }
+
+        /* ADR OTB | ADR vs */
+        html += '<td class="col-sep">' + fmtMoney(dayCur.adr) + '</td>';
+        if (dayDelta && hasComparison) {
+          html += '<td class="' + deltaClass(dayDelta.adr) + '">' + fmtDeltaMoney(dayDelta.adr) + '</td>';
+        } else {
+          html += '<td>\u2014</td>';
+        }
+
+        /* Occ% OTB | Occ vs (delta approx: current occ − comparison.rooms/total_rooms) */
+        html += '<td class="col-sep">' + fmtPct(dayCur[occCurrentKey]) + '</td>';
+        if (dayOccDelta !== null) {
+          html += '<td class="' + deltaClass(dayOccDelta) + '">' + fmtDeltaPP(dayOccDelta) + '</td>';
+        } else {
+          html += '<td>\u2014</td>';
+        }
+
+        /* RevPAR */
+        html += '<td class="col-sep">' + fmtMoney(dayCur[rpCurrentKey]) + '</td>';
 
         /* Pickup */
         if (dayPickup) {
-          html += '<td>' + fmtNum(dayPickup.rooms) + '</td>';
+          html += '<td class="col-sep">' + fmtNum(dayPickup.rooms) + '</td>';
           html += '<td>' + fmtMoney(dayPickup.revenue) + '</td>';
           html += '<td>' + fmtPickupAdr(dayPickup) + '</td>';
         } else {
-          html += '<td>\u2014</td><td>\u2014</td><td>\u2014</td>';
+          html += '<td class="col-sep">\u2014</td><td>\u2014</td><td>\u2014</td>';
         }
 
         html += '</tr>';
       }
     } else {
       html += '<tr class="day-expand-row" data-month="' + monthKey + '">';
-      html += '<td colspan="13" class="day-placeholder">No daily data available</td>';
+      html += '<td colspan="12" class="day-placeholder">No daily data available</td>';
       html += '</tr>';
     }
   }
@@ -29035,10 +29123,11 @@ function updateOooToggle() {
   var suffix = activeOoo === 'excl' ? ' (ex OOO)' : ' (inc OOO)';
   var thOcc = document.getElementById('th-occ');
   var thRevpar = document.getElementById('th-revpar');
-  var thDeltaOcc = document.getElementById('th-delta-occ');
-  if (thOcc) thOcc.textContent = 'Occ%' + suffix;
-  if (thRevpar) thRevpar.textContent = 'RevPAR' + suffix;
-  if (thDeltaOcc) thDeltaOcc.textContent = 'Occ (pp)' + suffix;
+  var thOccGroup = document.getElementById('th-occ-group');
+  if (thOcc) thOcc.textContent = 'OTB';
+  if (thRevpar) thRevpar.innerHTML = 'RevPAR<br>' + suffix.trim();
+  if (thOccGroup) thOccGroup.textContent = 'Occ%' + suffix;
+  updateComparisonHeaders();
 }
 
 /* ── Chart Filter ───────────────────────────────────────── */
@@ -29084,6 +29173,7 @@ function aggregateWeekly(data, months) {
   var sliced = months < monthly.length ? monthly.slice(0, months) : monthly;
 
   /* Collect all days in the filtered months */
+  var occKey = activeOoo === 'excl' ? 'occ_excl_ooo' : 'occ_incl_ooo';
   var allDays = [];
   for (var i = 0; i < sliced.length; i++) {
     var mk = sliced[i].month;
@@ -29095,7 +29185,8 @@ function aggregateWeekly(data, months) {
   if (allDays.length === 0) {
     /* Fallback to monthly if no daily data */
     return sliced.map(function(m) {
-      return {label: m.label, current: {revenue: m.current.revenue, adr: m.current.adr},
+      return {label: m.label, monthName: m.label.split(' ')[0], isFirstOfMonth: true,
+              current: {revenue: m.current.revenue, adr: m.current.adr, occ: m.current[occKey] != null ? m.current[occKey] : null},
               comparison: m.comparison ? {revenue: m.comparison.revenue} : null};
     });
   }
@@ -29118,13 +29209,17 @@ function aggregateWeekly(data, months) {
 
     if (!curWeek || curWeek.key !== weekKey) {
       curWeek = {key: weekKey, monday: monday, curRooms: 0, curRevenue: 0, curRoomRev: 0,
-                 compRevenue: 0, hasComp: false, days: 0};
+                 compRevenue: 0, hasComp: false, occSum: 0, occCount: 0, days: 0};
       weeks.push(curWeek);
     }
     curWeek.curRooms += day.current.rooms;
     curWeek.curRevenue += day.current.revenue;
     curWeek.curRoomRev += day.current.revenue; /* room_revenue = revenue at daily level */
     curWeek.days++;
+    if (day.current[occKey] != null) {
+      curWeek.occSum += day.current[occKey];
+      curWeek.occCount++;
+    }
     if (day.comparison) {
       curWeek.compRevenue += day.comparison.revenue;
       curWeek.hasComp = true;
@@ -29133,38 +29228,77 @@ function aggregateWeekly(data, months) {
 
   /* Convert to chart-friendly format */
   var months_short = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return weeks.map(function(w) {
+  var result = weeks.map(function(w) {
     var adr = w.curRooms > 0 ? w.curRoomRev / w.curRooms : null;
+    var occ = w.occCount > 0 ? w.occSum / w.occCount : null;
     var mon = w.monday;
     var label = months_short[mon.getMonth()] + ' ' + mon.getDate();
     return {
       label: label,
-      current: {revenue: w.curRevenue, adr: adr},
+      monthName: months_short[mon.getMonth()],
+      monthNum: mon.getMonth(),
+      isFirstOfMonth: false,
+      current: {revenue: w.curRevenue, adr: adr, occ: occ},
       comparison: w.hasComp ? {revenue: w.compRevenue} : null
     };
   });
+  /* Mark first occurrence of each month */
+  var prevMonthNum = -1;
+  for (var ri = 0; ri < result.length; ri++) {
+    if (result[ri].monthNum !== prevMonthNum) {
+      result[ri].isFirstOfMonth = true;
+      prevMonthNum = result[ri].monthNum;
+    }
+  }
+  return result;
+}
+
+/* ── Daily Chart Data (no aggregation) ─────────────────── */
+function getDailyChartData(months) {
+  var data = getActiveData();
+  var monthly = data.monthly || [];
+  var daily = data.daily || {};
+  var sliced = months < monthly.length ? monthly.slice(0, months) : monthly;
+  var months_short = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var occKey = activeOoo === 'excl' ? 'occ_excl_ooo' : 'occ_incl_ooo';
+  var points = [];
+
+  for (var i = 0; i < sliced.length; i++) {
+    var mk = sliced[i].month;
+    var days = daily[mk] || [];
+    for (var j = 0; j < days.length; j++) {
+      var day = days[j];
+      var dateParts = day.date.split('-');
+      var mo = parseInt(dateParts[1]) - 1;
+      points.push({
+        label: months_short[mo] + ' ' + parseInt(dateParts[2]),
+        monthName: months_short[mo],
+        isFirstOfMonth: j === 0,
+        current: { revenue: day.current.revenue, adr: day.current.adr, occ: day.current[occKey] != null ? day.current[occKey] : null },
+        comparison: day.comparison ? { revenue: day.comparison.revenue } : null
+      });
+    }
+  }
+  return points;
 }
 
 /* ── Hero Chart (Client-side SVG) ───────────────────────── */
 function renderHeroChart(months) {
   var data = getActiveData();
-  var sliced = aggregateWeekly(data, months);
+  var sliced = months <= 3 ? getDailyChartData(months) : aggregateWeekly(data, months);
   if (sliced.length === 0) return;
 
-  var labels = [], currentRev = [], ghostRev = [], adrPoints = [];
+  var currentRev = [], ghostRev = [], adrPoints = [];
+  chartTooltipData = [];
+
   for (var i = 0; i < sliced.length; i++) {
     var m = sliced[i];
-    labels.push(m.label);  /* e.g., "Mar 3" for weekly */
     var cur = m.current || {};
     currentRev.push(cur.revenue || 0);
-
     var comp = m.comparison;
-    if (comp && comp.revenue !== null && comp.revenue !== undefined) {
-      ghostRev.push(comp.revenue);
-    } else {
-      ghostRev.push(null);
-    }
-    adrPoints.push(cur.adr !== undefined ? cur.adr : null);
+    ghostRev.push((comp && comp.revenue != null) ? comp.revenue : null);
+    adrPoints.push(cur.adr != null ? cur.adr : null);
+    chartTooltipData.push({ label: m.label, currentRev: cur.revenue || 0, compRev: comp ? comp.revenue : null, currentAdr: cur.adr != null ? cur.adr : null, currentOcc: cur.occ != null ? cur.occ : null });
   }
 
   var n = sliced.length;
@@ -29177,17 +29311,14 @@ function renderHeroChart(months) {
   var maxRev = allRev.length > 0 ? Math.max.apply(null, allRev) * 1.15 : 1000000;
 
   var validAdr = adrPoints.filter(function(a) { return a !== null && a > 0; });
-  var minAdr, maxAdr;
-  if (validAdr.length > 0) {
-    minAdr = Math.min.apply(null, validAdr) * 0.85;
-    maxAdr = Math.max.apply(null, validAdr) * 1.15;
-  } else {
-    minAdr = 0; maxAdr = 1000;
-  }
+  var minAdr = validAdr.length > 0 ? Math.min.apply(null, validAdr) * 0.85 : 0;
+  var maxAdr = validAdr.length > 0 ? Math.max.apply(null, validAdr) * 1.15 : 1000;
 
+  /* Narrower bars for daily (large n) */
   var groupW = PLOT_W / n;
-  var barW = groupW * 0.3;
-  var gap = groupW * 0.05;
+  var padFactor = n > 60 ? 0.28 : 0.3;
+  var barW = groupW * padFactor;
+  var gap = groupW * 0.03;
 
   function revY(val) {
     if (maxRev === 0) return PAD_T + PLOT_H;
@@ -29197,76 +29328,102 @@ function renderHeroChart(months) {
     if (maxAdr === minAdr) return PAD_T + PLOT_H / 2;
     return PAD_T + PLOT_H - (val - minAdr) / (maxAdr - minAdr) * PLOT_H;
   }
-
   function fmtRevAxis(val) {
     if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
     if (val >= 1000) return '$' + Math.round(val / 1000) + 'K';
     return '$' + Math.round(val);
   }
-  function fmtAdrAxis(val) { return '$' + Math.round(val); }
 
   var svg = '<svg width="' + CHART_WIDTH + '" height="' + CHART_HEIGHT + '" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,DM Sans,Arial,sans-serif">';
   svg += '<rect width="' + CHART_WIDTH + '" height="' + CHART_HEIGHT + '" fill="white"/>';
 
-  /* Grid lines */
+  /* Horizontal revenue grid lines */
   for (var g = 0; g < 5; g++) {
     var gy = PAD_T + (PLOT_H / 4) * g;
     var gVal = maxRev - (maxRev / 4) * g;
-    svg += '<line x1="' + PAD_L + '" y1="' + gy + '" x2="' + (CHART_WIDTH - PAD_R) + '" y2="' + gy + '" stroke="' + COL_GRID + '" stroke-width="0.5"/>';
-    svg += '<text x="' + (PAD_L - 8) + '" y="' + (gy + 4) + '" text-anchor="end" fill="' + COL_LABEL + '" font-size="11">' + fmtRevAxis(gVal) + '</text>';
+    svg += '<line x1="' + PAD_L + '" y1="' + gy.toFixed(1) + '" x2="' + (CHART_WIDTH - PAD_R) + '" y2="' + gy.toFixed(1) + '" stroke="' + COL_GRID + '" stroke-width="0.5"/>';
+    svg += '<text x="' + (PAD_L - 8) + '" y="' + (gy + 4).toFixed(1) + '" text-anchor="end" fill="' + COL_LABEL + '" font-size="11">' + fmtRevAxis(gVal) + '</text>';
   }
 
-  /* ADR axis */
-  for (var a = 0; a < 5; a++) {
-    var ay = PAD_T + (PLOT_H / 4) * a;
-    var aVal = maxAdr - (maxAdr - minAdr) / 4 * a;
-    svg += '<text x="' + (CHART_WIDTH - PAD_R + 8) + '" y="' + (ay + 4) + '" text-anchor="start" fill="' + COL_LABEL + '" font-size="11">' + fmtAdrAxis(aVal) + '</text>';
+  /* Right axis — ADR */
+  if (activeAdr) {
+    for (var a = 0; a < 5; a++) {
+      var ay = PAD_T + (PLOT_H / 4) * a;
+      var aVal = maxAdr - (maxAdr - minAdr) / 4 * a;
+      svg += '<text x="' + (CHART_WIDTH - PAD_R + 8) + '" y="' + (ay + 4).toFixed(1) + '" text-anchor="start" fill="' + COL_ADR + '" font-size="11">$' + Math.round(aVal) + '</text>';
+    }
+  }
+
+  /* Month boundary vertical grid lines */
+  for (var mb = 1; mb < n; mb++) {
+    if (sliced[mb].isFirstOfMonth) {
+      var mbX = (PAD_L + mb * groupW).toFixed(1);
+      svg += '<line x1="' + mbX + '" y1="' + PAD_T + '" x2="' + mbX + '" y2="' + (PAD_T + PLOT_H) + '" stroke="' + COL_GRID + '" stroke-width="1" stroke-dasharray="3,3"/>';
+    }
   }
 
   var baseY = revY(0);
 
-  /* Bars */
+  /* Bars + invisible hitboxes for tooltips */
   for (var b = 0; b < n; b++) {
     var gx = PAD_L + b * groupW;
+
+    /* Bar color: green if ahead, red if behind, blue if no comparison */
+    var barColor = COL_CURRENT;
+    if (ghostRev[b] !== null) {
+      barColor = currentRev[b] >= ghostRev[b] ? '#167D48' : '#d63b3b';
+    }
 
     if (ghostRev[b] !== null && ghostRev[b] > 0) {
       var gbTop = revY(ghostRev[b]);
       var gbH = baseY - gbTop;
-      var gbx = gx + gap;
-      svg += '<rect x="' + gbx.toFixed(1) + '" y="' + gbTop.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + gbH.toFixed(1) + '" fill="none" stroke="' + COL_GHOST + '" stroke-width="1.5" rx="2"/>';
+      svg += '<rect x="' + (gx + gap).toFixed(1) + '" y="' + gbTop.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + gbH.toFixed(1) + '" fill="none" stroke="' + COL_GHOST + '" stroke-width="1.5" rx="2"/>';
     }
 
     if (currentRev[b] > 0) {
       var cbTop = revY(currentRev[b]);
       var cbH = baseY - cbTop;
-      var cbx = gx + gap + barW + gap;
-      svg += '<rect x="' + cbx.toFixed(1) + '" y="' + cbTop.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + cbH.toFixed(1) + '" fill="' + COL_CURRENT + '" rx="2"/>';
+      svg += '<rect x="' + (gx + gap + barW + gap).toFixed(1) + '" y="' + cbTop.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + cbH.toFixed(1) + '" fill="' + barColor + '" rx="2"/>';
     }
 
-    var lx = gx + groupW / 2;
-    svg += '<text x="' + lx.toFixed(1) + '" y="' + (CHART_HEIGHT - 10) + '" text-anchor="middle" fill="' + COL_LABEL + '" font-size="11">' + labels[b] + '</text>';
+    /* X-axis label — month name only at first of month */
+    if (sliced[b].isFirstOfMonth) {
+      svg += '<text x="' + (gx + groupW / 2).toFixed(1) + '" y="' + (CHART_HEIGHT - 10) + '" text-anchor="middle" fill="' + COL_LABEL + '" font-size="11">' + sliced[b].monthName + '</text>';
+    }
+
+    /* Transparent hitbox for hover tooltip */
+    svg += '<rect x="' + gx.toFixed(1) + '" y="' + PAD_T + '" width="' + groupW.toFixed(1) + '" height="' + PLOT_H + '" fill="transparent" style="cursor:default" onmouseover="showChartTooltip(event,' + b + ')" onmouseout="hideChartTooltip()"/>';
   }
 
   /* ADR line */
-  var adrLinePts = [];
-  for (var d = 0; d < n; d++) {
-    if (adrPoints[d] !== null) {
-      adrLinePts.push({ x: PAD_L + d * groupW + groupW / 2, y: adrY(adrPoints[d]) });
+  if (activeAdr) {
+    var adrLinePts = [];
+    for (var d = 0; d < n; d++) {
+      if (adrPoints[d] !== null) {
+        adrLinePts.push({ x: PAD_L + d * groupW + groupW / 2, y: adrY(adrPoints[d]) });
+      }
     }
-  }
-  if (adrLinePts.length > 1) {
-    var pathD = 'M ' + adrLinePts[0].x.toFixed(1) + ' ' + adrLinePts[0].y.toFixed(1);
-    for (var p = 1; p < adrLinePts.length; p++) {
-      pathD += ' L ' + adrLinePts[p].x.toFixed(1) + ' ' + adrLinePts[p].y.toFixed(1);
+    if (adrLinePts.length > 1) {
+      var pathD = 'M ' + adrLinePts[0].x.toFixed(1) + ' ' + adrLinePts[0].y.toFixed(1);
+      for (var p = 1; p < adrLinePts.length; p++) {
+        pathD += ' L ' + adrLinePts[p].x.toFixed(1) + ' ' + adrLinePts[p].y.toFixed(1);
+      }
+      svg += '<path d="' + pathD + '" fill="none" stroke="' + COL_ADR + '" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none"/>';
     }
-    svg += '<path d="' + pathD + '" fill="none" stroke="' + COL_ADR + '" stroke-width="2"/>';
-  }
-  for (var q = 0; q < adrLinePts.length; q++) {
-    svg += '<circle cx="' + adrLinePts[q].x.toFixed(1) + '" cy="' + adrLinePts[q].y.toFixed(1) + '" r="3.5" fill="' + COL_ADR + '" stroke="white" stroke-width="1.5"/>';
+    /* Dots only for small datasets (weekly ≤ 24 points) */
+    if (n <= 24) {
+      for (var q = 0; q < adrLinePts.length; q++) {
+        svg += '<circle cx="' + adrLinePts[q].x.toFixed(1) + '" cy="' + adrLinePts[q].y.toFixed(1) + '" r="3.5" fill="' + COL_ADR + '" stroke="white" stroke-width="1.5" pointer-events="none"/>';
+      }
+    }
   }
 
   svg += '</svg>';
   document.getElementById('hero-chart').innerHTML = svg;
+
+  /* Sync ADR legend visibility */
+  var legendAdr = document.getElementById('legend-adr');
+  if (legendAdr) legendAdr.style.display = activeAdr ? '' : 'none';
 }
 
 /* ── Day Row Toggle ─────────────────────────────────────── */
@@ -29277,6 +29434,65 @@ function toggleDay(monthKey) {
     rows[i].classList.toggle('visible');
   }
   if (monthRow) monthRow.classList.toggle('month-expanded');
+}
+
+/* ── Chart Tooltip ──────────────────────────────────────── */
+function showChartTooltip(event, idx) {
+  var d = chartTooltipData[idx];
+  if (!d) return;
+  var modeLabels = { 'stly': 'STLY', 'wow': 'WoW', 'budget': 'Budget' };
+  var modeLabel = modeLabels[activeMode] || '';
+  var lines = '<div class="tt-label">' + d.label + '</div>';
+  lines += '<div>Revenue OTB: ' + fmtMoney(d.currentRev) + '</div>';
+  if (d.compRev !== null) {
+    lines += '<div>' + modeLabel + ': ' + fmtMoney(d.compRev) + '</div>';
+    var diff = d.currentRev - d.compRev;
+    var pct = d.compRev > 0 ? diff / d.compRev * 100 : null;
+    var sign = diff >= 0 ? '+' : '\u2212';
+    var diffStr = sign + '$' + Math.round(Math.abs(diff)).toLocaleString('en-US');
+    var pctStr = pct !== null ? ' (' + sign + Math.abs(pct).toFixed(1) + '%)' : '';
+    var deltaColor = diff >= 0 ? '#b8e8c8' : '#f5b0b0';
+    lines += '<div style="color:' + deltaColor + '">' + diffStr + pctStr + '</div>';
+  }
+  if (d.currentAdr !== null) {
+    lines += '<div style="margin-top:4px;border-top:1px solid rgba(255,255,255,0.15);padding-top:4px">ADR: ' + fmtMoney(d.currentAdr) + '</div>';
+  }
+  if (d.currentOcc !== null) {
+    lines += '<div>Occ: ' + fmtPct(d.currentOcc) + '</div>';
+  }
+  var el = document.getElementById('chart-tooltip');
+  el.innerHTML = lines;
+  el.style.display = 'block';
+  el.style.left = (event.clientX + 14) + 'px';
+  el.style.top = (event.clientY - 10) + 'px';
+}
+
+function hideChartTooltip() {
+  var el = document.getElementById('chart-tooltip');
+  if (el) el.style.display = 'none';
+}
+
+/* ── ADR Toggle ─────────────────────────────────────────── */
+function setAdr() {
+  activeAdr = !activeAdr;
+  render();
+}
+
+function updateAdrPill() {
+  var pill = document.getElementById('adr-pill');
+  if (!pill) return;
+  if (activeAdr) { pill.classList.add('active'); } else { pill.classList.remove('active'); }
+}
+
+/* ── Comparison Column Headers ──────────────────────────── */
+function updateComparisonHeaders() {
+  var modeLabels = { 'stly': 'vs STLY', 'wow': 'vs WoW', 'budget': 'vs Budget' };
+  var label = (activeMode && modeLabels[activeMode]) ? modeLabels[activeMode] : 'vs \u2014';
+  var ids = ['th-rev-comp', 'th-adr-comp', 'th-occ-comp'];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) el.textContent = label;
+  }
 }
 
 /* ── Actions ────────────────────────────────────────────── */
@@ -29315,6 +29531,8 @@ function render() {
   updateComparisonPills();
   updateOooToggle();
   updateChartFilter();
+  updateAdrPill();
+  updateComparisonHeaders();
   updateFootnotes();
   /* Window label reflects filter */
   if (filteredMonthly.length > 0) {
