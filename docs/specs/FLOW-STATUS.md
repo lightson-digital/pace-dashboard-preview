@@ -1,4 +1,6 @@
-# Flow Status — Pace Dashboard v5 Revision
+# Flow Status — Pace Dashboard v5
+
+## Build Flow (Complete)
 
 **Feature:** Revise pace dashboard based on team feedback (Loom video review)
 **Started:** 2026-04-07
@@ -6,7 +8,7 @@
 - Dashboard preview: `lights-on/pace-dashboard-preview/`
 - Pipeline: `lights-on/revenue-reporting-automation/pace-pipeline/`
 
-## Phase Log
+### Build Phase Log
 
 | Phase | Status | Date | Notes |
 |-------|--------|------|-------|
@@ -21,13 +23,34 @@
 | 8 Documentation | Done | 2026-04-07 | README, CLAUDE.md, CHANGELOG updated. |
 | 9 Finish | Done | 2026-04-07 | Both repos pushed. UX critique session next. |
 
+---
+
+## Aesthetics Refresh Flow (Active)
+
+**Feature:** UX critique and aesthetics refresh of dashboard v5
+**Started:** 2026-04-07
+**Class:** Standard
+
+### Aesthetics Phase Log
+
+| Phase | Status | Date | Notes |
+|-------|--------|------|-------|
+| -1 Classify | Done | 2026-04-07 | Standard class. Single file, familiar codebase, medium stakes. |
+| 0 Research | Done | 2026-04-07 | teach-impeccable run. LOD brand context established. Design decisions: LOD-branded but light, Inter fallback fonts, WCAG AA. |
+| 2 Design | Done | 2026-04-07 | Critique (27/40) + typeset + colorize + arrange + polish assessments. 11 P1, 9 P2, 7 P3 findings. |
+| 6 Build | Done | 2026-04-07 | 4 passes (typeset, colorize, arrange, polish). JS syntax verified. No external dependencies added. |
+| 8 Documentation | Done | 2026-04-07 | README.md, CLAUDE.md, CHANGELOG.md created. |
+| 9 Finish | Done | 2026-04-07 | Committed. Next: functional critique + propagate to production template. |
+
 ## Key Artifacts
 
 - Original design spec: `pace-pipeline/docs/superpowers/specs/2026-03-15-pace-dashboard-design.md`
 - v4 mockup: `pace-dashboard-preview/dashboard-v4.html`
 - Demo mockup: `pace-dashboard-preview/dashboard-demo.html`
 - Team feedback: `revenue-reporting-automation/feedback/Optimizing Hotel Performance Metrics for the Next 90 Days 📊.srt`
-- Revised design spec: `pace-dashboard-preview/docs/specs/DESIGN.md` (pending)
+- Revised design spec: `pace-dashboard-preview/docs/specs/DESIGN.md`
+- Design context: `pace-dashboard-preview/.impeccable.md`
+- Aesthetics findings: `pace-dashboard-preview/docs/specs/AESTHETICS-FINDINGS.md`
 
 ## Data Constraints
 
