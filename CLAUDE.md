@@ -38,9 +38,10 @@ Brand and design guidelines are in `.impeccable.md`. Key points:
 - **≤3 months:** daily data points (one bar per day)
 - **≥6 months:** weekly aggregation (ISO week buckets)
 - **Bar color:** green (`--pos`) when ahead of comparison, red (`--neg`) when behind, blue (`--lod-electric-blue`) when no comparison
-- **ADR line:** dashed blue (`#0A84FF`), toggleable via pill (default on)
+- **ADR line (current):** solid lighter blue (`#7FBFFF`), toggleable via pill (default on)
+- **ADR line (comparison):** dashed `#B8D4E8`, shown when comparison mode is active
 - **Right axis:** ADR scale in blue when ADR active
-- **Tooltip:** Revenue OTB + comparison + delta + ADR + Occ% (ADR/Occ have no comparison shown)
+- **Tooltip:** Revenue OTB + comparison + delta + ADR (with comparison delta) + Occ% (with comparison delta where available)
 - **Daily occ delta:** approximate — uses `comparison.rooms / total_rooms * 100` as proxy (daily comparison data lacks occ fields)
 
 ## Table Layout

@@ -6,6 +6,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Fixed (2026-04-08)
+- ADR right Y-axis no longer disappears in print/PDF export (added viewBox to SVG, overflow:visible in print CSS)
+
+### Added (2026-04-08)
+- ADR comparison line in hero chart — dashed lighter blue line shows comparison ADR when WoW/STLY/Budget is active
+- Chart tooltip shows ADR delta vs comparison (e.g. "+$48 vs $516")
+- Chart tooltip shows Occ% delta vs comparison where data is available (e.g. "-11.4pp vs 71.6%")
+- "ADR (Comparison)" legend entry appears when comparison mode is active
+
+### Changed (2026-04-08)
+- Current ADR line color softened from #0A84FF to #7FBFFF (lighter blue, less visual weight vs bars)
+- Current ADR line style changed from dashed to solid (comparison is now dashed)
+
 ### Changed — Functional Improvements (2026-04-07)
 
 **Hero Chart**
